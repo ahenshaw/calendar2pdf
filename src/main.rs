@@ -3,7 +3,7 @@ use chrono::naive::NaiveDate;
 use chrono::Duration;
 use icalendar::parser;
 use printpdf::path::PaintMode;
-use printpdf::{Mm, PdfDocument, Pt, Rect};
+use printpdf::{Color, PdfDocument, Pt, Rect, Rgb};
 use std::collections::HashMap;
 // use std::fmt::write;
 use std::fs::File;
@@ -28,9 +28,16 @@ pub struct Event {
     summary: String,
 }
 
-const COLS: usize = 3;
+const COLS: u32 = 4;
 const WIDTH: f32 = 612.;
 const HEIGHT: f32 = 792.;
+const GUTTER: f32 = 10.;
+const MARGIN: f32 = 36.;
+const MONTH_WIDTH: f32 = 12.;
+const DAY_WIDTH: f32 = 10.;
+// const LINE_GAP: f32 = 4.0;
+const ROW: f32 = (HEIGHT - MARGIN * 2.0) / (12.0 * 31.0 / COLS as f32);
+const CW: f32 = (WIDTH - MARGIN * 2.0 - GUTTER * (COLS as f32 - 1.0)) / COLS as f32;
 
 fn write_to_pdf(outpath: &Path) {
     let (doc, page1, layer1) = PdfDocument::new(
@@ -39,17 +46,63 @@ fn write_to_pdf(outpath: &Path) {
         Pt(HEIGHT).into(),
         "Layer 1",
     );
+    let font_file = File::open("assets/fonts/DejaVuSans.ttf").unwrap();
+    let font = doc.add_external_font(font_file).unwrap();
+
     let canvas = doc.get_page(page1).get_layer(layer1);
-    canvas.set_outline_thickness(0.05);
-    for _col in 0..COLS {
-        let rect = Rect::new(
-            Pt(20.).into(),
-            Pt(20.).into(),
-            Pt(100.).into(),
-            Pt(100.).into(),
-        )
-        .with_mode(PaintMode::Stroke);
-        canvas.add_rect(rect);
+    canvas.set_outline_thickness(0.01);
+    canvas.set_outline_color(Color::Rgb(Rgb::new(0.8, 0.8, 0.8, None)));
+
+    let mut left = MARGIN;
+    let mut month = 1;
+    for _ in 0..COLS {
+        let mut bottom = HEIGHT - MARGIN - ROW;
+        for _ in 1..=12 / COLS {
+            // month
+            canvas.add_rect(
+                Rect::new(
+                    Pt(left).into(),
+                    Pt(bottom - (30. * ROW)).into(),
+                    Pt(left + MONTH_WIDTH).into(),
+                    Pt(bottom + ROW).into(),
+                )
+                .with_mode(PaintMode::Stroke),
+            );
+
+            for day in 1..=31 {
+                // text
+                canvas.add_rect(
+                    Rect::new(
+                        Pt(left + MONTH_WIDTH + DAY_WIDTH).into(),
+                        Pt(bottom).into(),
+                        Pt(left + CW).into(),
+                        Pt(bottom + ROW).into(),
+                    )
+                    .with_mode(PaintMode::Stroke),
+                );
+                // day number
+                canvas.add_rect(
+                    Rect::new(
+                        Pt(left + MONTH_WIDTH).into(),
+                        Pt(bottom).into(),
+                        Pt(left + MONTH_WIDTH + DAY_WIDTH).into(),
+                        Pt(bottom + ROW).into(),
+                    )
+                    .with_mode(PaintMode::Stroke),
+                );
+                let text = format!("{}", day);
+                canvas.use_text(
+                    &text,
+                    6.0,
+                    Pt(left + MONTH_WIDTH).into(),
+                    Pt(bottom + 2.0).into(),
+                    &font,
+                );
+                bottom -= ROW;
+            }
+            month += 1;
+        }
+        left += CW + GUTTER;
     }
 
     doc.save(&mut BufWriter::new(File::create(outpath).unwrap()))
