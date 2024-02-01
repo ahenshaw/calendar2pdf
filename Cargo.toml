@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.79"
+azul-text-layout = "0.0.4"
 chrono = "0.4.33"
 ical = "0.10.0"
 icalendar = "0.16.0"
