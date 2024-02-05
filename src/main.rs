@@ -1,29 +1,52 @@
 use anyhow::Result;
 use chrono::naive::NaiveDate;
-use chrono::Duration;
 use icalendar::parser;
 use printpdf::path::PaintMode::{self, FillStroke, Stroke};
 use printpdf::*;
 use std::collections::HashMap;
 // use std::fmt::write;
+use clap::Parser;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
 use std::path::PathBuf;
 
 fn main() {
-    if let Ok(events) = get_events(&PathBuf::from("data/KHW Travel Calendar.ics")) {
-        let days = populate_days(&events);
-        for (day, events) in days {
-            println!("{} {:?}", day, events);
+    let cli = Cli::parse();
+    let outpath = cli.output.unwrap();
+    let (doc, canvas, font) = create_pdf();
+    let pos_map = base_calendar(&canvas, &font);
+    for calendar in cli.calendars {
+        if let Ok(events) = get_events(&calendar) {
+            let days = populate_days(&events);
+            for (day, events) in &days {
+                println!("{} {:?}", day, events);
+            }
+            // write_events(&canvas, &days, &pos_map, &font);
         }
     }
-    let outpath = PathBuf::from("test.pdf");
-    let (mut doc, canvas, font) = create_pdf();
-    let _label_pos = base_calendar(&mut doc, &canvas, &font);
-
     doc.save(&mut BufWriter::new(File::create(outpath).unwrap()))
         .unwrap();
+}
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// file-paths for calendar files (*.ics)
+    #[arg(required = true)]
+    calendars: Vec<PathBuf>,
+
+    /// output file-path
+    #[arg(short, long, value_name = "output", default_value("test.pdf"))]
+    output: Option<PathBuf>,
+
+    /// Calendar year
+    #[arg(short, long, value_name = "year", default_value("2024"))]
+    year: Option<usize>,
+
+    /// Number of columns
+    #[arg(short, long, value_parser = clap::value_parser!(u16).range(3..5))]
+    columns: Option<usize>,
 }
 
 #[derive(Debug)]
@@ -39,18 +62,39 @@ const HEIGHT: f32 = 792.;
 const GUTTER: f32 = 10.;
 const MARGIN: f32 = 36.;
 const DAY_WIDTH: f32 = 10.;
-const TITLE_HEIGHT: f32 = 24.;
-// const LINE_GAP: f32 = 4.0;
+const TITLE_HEIGHT: f32 = 16.;
+const FONT_HEIGHT: f32 = 5.;
+const BASE: f32 = 2.;
+
 const ROW: f32 = (HEIGHT - TITLE_HEIGHT - MARGIN * 2.0) / (12.0 * 32.0 / COLS as f32);
 const CW: f32 = (WIDTH - MARGIN * 2.0 - GUTTER * (COLS as f32 - 1.0)) / COLS as f32;
 
+type Schedule = HashMap<NaiveDate, Vec<(String, i64)>>;
+
 fn write_events(
     canvas: &PdfLayerReference,
-    days: HashMap<NaiveDate, Vec<String>>,
-    pos_map: HashMap<NaiveDate, (f32, f32)>,
+    schedules: &Vec<&Schedule>,
+    pos_map: &HashMap<NaiveDate, (f32, f32)>,
     font: &IndirectFontRef,
 ) {
-    S
+    for schedule in schedules {
+        for (day, events) in schedule.iter() {
+            // if let Some((x, y)) = pos_map.get(&day) {
+            //     let mut text = labels.join(" | ");
+            //     if text.len() > 25 {
+            //         text = text[..24].to_string();
+            //         text.push('…');
+            //     }
+            //     canvas.use_text(
+            //         &text,
+            //         FONT_HEIGHT,
+            //         Pt(x + 2.).into(),
+            //         Pt(y + BASE).into(),
+            //         &font,
+            //     );
+            // }
+        }
+    }
 }
 
 fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef) {
@@ -66,17 +110,15 @@ fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef) {
         ..Default::default()
     }));
     let canvas = doc.get_page(page1).get_layer(layer1);
-    let font_file = File::open("assets/fonts/DejaVuSans.ttf").unwrap();
-    let font = doc.add_external_font(font_file).unwrap();
+    let font = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
 
     (doc, canvas, font)
 }
 fn base_calendar(
-    doc: &mut PdfDocumentReference,
     canvas: &PdfLayerReference,
     font: &IndirectFontRef,
 ) -> HashMap<NaiveDate, (f32, f32)> {
-    let year = 2024;
+    let year = 2023;
     let mut left = MARGIN;
     let mut month = 1u32;
     let mut shade = false;
@@ -97,8 +139,8 @@ fn base_calendar(
             canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
             canvas.use_text(
                 &format!("{}", month_name),
-                5.0,
-                Pt(left + 5. * DAY_WIDTH).into(),
+                FONT_HEIGHT,
+                Pt(left + 7. * DAY_WIDTH).into(),
                 Pt(bottom + 2.0).into(),
                 &font,
             );
@@ -143,17 +185,17 @@ fn base_calendar(
 
                     canvas.use_text(
                         &format!("{}", day),
-                        5.0,
+                        FONT_HEIGHT,
                         Pt(left + 2.).into(),
-                        Pt(bottom + 2.).into(),
+                        Pt(bottom + BASE).into(),
                         &font,
                     );
 
                     canvas.use_text(
                         &format!("{}", day_of_week.chars().next().unwrap()),
-                        5.0,
+                        FONT_HEIGHT,
                         Pt(left + DAY_WIDTH + 2.).into(),
-                        Pt(bottom + 2.0).into(),
+                        Pt(bottom + BASE).into(),
                         &font,
                     );
                 }
@@ -178,29 +220,6 @@ fn base_calendar(
     label_position
 }
 
-pub fn write_month(
-    canvas: &PdfLayerReference,
-    index: u32,
-    x: f32,
-    top: f32,
-    bottom: f32,
-    font: &IndirectFontRef,
-) {
-    let name = MONTHS[index as usize].to_lowercase();
-    const MONTH_FONT_SIZE: f32 = 11.;
-    let start = (top + bottom) / 2. + (name.len() as f32) * MONTH_FONT_SIZE / 2.;
-    dbg!((top, bottom, &start));
-
-    canvas.begin_text_section();
-    canvas.set_font(&font, MONTH_FONT_SIZE);
-    canvas.set_line_height(MONTH_FONT_SIZE);
-    canvas.set_text_cursor(Pt(x).into(), Pt(start).into());
-    for c in name.chars() {
-        canvas.write_text(format!("{c}"), &font);
-        canvas.add_line_break();
-    }
-    canvas.end_text_section();
-}
 pub fn get_events(calendar_file_path: &Path) -> Result<Vec<Event>> {
     let mut events = vec![];
     let data = std::fs::read_to_string(calendar_file_path)?;
@@ -237,17 +256,15 @@ pub fn get_events(calendar_file_path: &Path) -> Result<Vec<Event>> {
     Ok(events)
 }
 
-pub fn populate_days(events: &Vec<Event>) -> HashMap<NaiveDate, Vec<String>> {
+pub fn populate_days(events: &Vec<Event>) -> HashMap<NaiveDate, Vec<(String, i64)>> {
     let mut days = HashMap::new();
     for event in events {
         if !event.summary.starts_with("Canceled: ") {
             let mut day = event.start;
-            while day <= event.end {
-                days.entry(day)
-                    .or_insert(Vec::new())
-                    .push(event.summary.clone());
-                day += Duration::days(1);
-            }
+            let num_days = (event.end - day).num_days();
+            days.entry(day)
+                .or_insert(Vec::new())
+                .push((event.summary.clone(), num_days));
         }
     }
     days
