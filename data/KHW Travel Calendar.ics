@@ -2,41 +2,25 @@ BEGIN:VCALENDAR
 PRODID:-//Microsoft Corporation//Outlook 16.0 MIMEDIR//EN
 VERSION:2.0
 METHOD:PUBLISH
-X-CALSTART:20240308T130000Z
-X-CALEND:20240628T210000Z
+X-CALSTART:20240308T000000
+X-CALEND:20240629T000000
 X-WR-RELCALID:{0000002E-14A1-1493-7101-FD29FEE2301A}
 X-WR-CALNAME:KHW Travel
-BEGIN:VTIMEZONE
-TZID:Eastern Standard Time
-BEGIN:STANDARD
-DTSTART:16011104T020000
-RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=11
-TZOFFSETFROM:-0400
-TZOFFSETTO:-0500
-END:STANDARD
-BEGIN:DAYLIGHT
-DTSTART:16010311T020000
-RRULE:FREQ=YEARLY;BYDAY=2SU;BYMONTH=3
-TZOFFSETFROM:-0500
-TZOFFSETTO:-0400
-END:DAYLIGHT
-END:VTIMEZONE
 BEGIN:VEVENT
 CLASS:PUBLIC
-CREATED:20240130T214509Z
+CREATED:20240206T213653Z
 DESCRIPTION: \n
-DTEND;TZID="Eastern Standard Time":20240308T170000
-DTSTAMP:20240131T151915Z
-DTSTART;TZID="Eastern Standard Time":20240308T080000
-LAST-MODIFIED:20240130T214509Z
+DTEND;VALUE=DATE:20240314
+DTSTAMP:20240206T214322Z
+DTSTART;VALUE=DATE:20240308
+LAST-MODIFIED:20240206T213653Z
 LOCATION:Nashville
 PRIORITY:5
-RRULE:FREQ=DAILY;COUNT=6
 SEQUENCE:0
 SUMMARY;LANGUAGE=en-us:KHW
-TRANSP:OPAQUE
-UID:040000008200E00074C5B7101A82E00800000000F0FC83AF9B53DA01000000000000000
-	010000000C854ACC234FB8843A6EED808D43ADFE6
+TRANSP:TRANSPARENT
+UID:040000008200E00074C5B7101A82E0080000000020A42BB11A59DA01000000000000000
+	01000000046FF223ECD7C8F4EBD30974B0BFB6DF6
 X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml" 
 	xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-mic
 	rosoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/
@@ -44,7 +28,7 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	ontent-Type" CONTENT="text/html\; charset=us-ascii"><meta name=ProgId cont
 	ent=Word.Document><meta name=Generator content="Microsoft Word 15"><meta n
 	ame=Originator content="Microsoft Word 15"><link rel=File-List href="cid:f
-	ilelist.xml@01DA539B.CD882960"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
+	ilelist.xml@01DA591A.BC504590"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
 	Settings>\n<o:AllowPNG/>\n</o:OfficeDocumentSettings>\n</xml><![endif]--><
 	!--[if gte mso 9]><xml>\n<w:WordDocument>\n<w:Zoom>110</w:Zoom>\n<w:TrackM
 	oves/>\n<w:TrackFormatting/>\n<w:EnvelopeVis/>\n<w:PunctuationKerning/>\n<
@@ -535,33 +519,32 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	" data="1" />\n</o:shapelayout></xml><![endif]--></head><body lang=EN-US l
 	ink="#0563C1" vlink="#954F72" style='tab-interval:.5in'><div class=WordSec
 	tion1><p class=MsoNormal><o:p>&nbsp\;</o:p></p></div></body></html>
-X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1
 X-MICROSOFT-DISALLOW-COUNTER:FALSE
 X-MS-OLK-AUTOFILLLOCATION:FALSE
 X-MS-OLK-CONFTYPE:0
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT720M
 ACTION:DISPLAY
 DESCRIPTION:Reminder
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 CLASS:PUBLIC
-CREATED:20240130T215208Z
+CREATED:20240206T213744Z
 DESCRIPTION: \n
-DTEND;TZID="Eastern Standard Time":20240521T170000
-DTSTAMP:20240131T151915Z
-DTSTART;TZID="Eastern Standard Time":20240519T080000
-LAST-MODIFIED:20240130T215208Z
+DTEND;VALUE=DATE:20240522
+DTSTAMP:20240206T214322Z
+DTSTART;VALUE=DATE:20240519
+LAST-MODIFIED:20240206T213744Z
 LOCATION:Mobile
 PRIORITY:5
-RRULE:FREQ=DAILY;COUNT=3
 SEQUENCE:0
 SUMMARY;LANGUAGE=en-us:KHW
-TRANSP:OPAQUE
-UID:040000008200E00074C5B7101A82E00800000000F0B8B8A99C53DA01000000000000000
-	0100000003E716946851EA14C88F54592FB6806E3
+TRANSP:TRANSPARENT
+UID:040000008200E00074C5B7101A82E00800000000E00433CF1A59DA01000000000000000
+	010000000DD71F9A7F2437945B5FA1ED53A673520
 X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml" 
 	xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-mic
 	rosoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/
@@ -569,7 +552,7 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	ontent-Type" CONTENT="text/html\; charset=us-ascii"><meta name=ProgId cont
 	ent=Word.Document><meta name=Generator content="Microsoft Word 15"><meta n
 	ame=Originator content="Microsoft Word 15"><link rel=File-List href="cid:f
-	ilelist.xml@01DA539C.BEA15A60"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
+	ilelist.xml@01DA591A.DD2EBB20"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
 	Settings>\n<o:AllowPNG/>\n</o:OfficeDocumentSettings>\n</xml><![endif]--><
 	!--[if gte mso 9]><xml>\n<w:WordDocument>\n<w:Zoom>110</w:Zoom>\n<w:TrackM
 	oves/>\n<w:TrackFormatting/>\n<w:EnvelopeVis/>\n<w:PunctuationKerning/>\n<
@@ -1060,33 +1043,32 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	" data="1" />\n</o:shapelayout></xml><![endif]--></head><body lang=EN-US l
 	ink="#0563C1" vlink="#954F72" style='tab-interval:.5in'><div class=WordSec
 	tion1><p class=MsoNormal><o:p>&nbsp\;</o:p></p></div></body></html>
-X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1
 X-MICROSOFT-DISALLOW-COUNTER:FALSE
 X-MS-OLK-AUTOFILLLOCATION:FALSE
 X-MS-OLK-CONFTYPE:0
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT720M
 ACTION:DISPLAY
 DESCRIPTION:Reminder
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 CLASS:PUBLIC
-CREATED:20240130T215355Z
+CREATED:20240206T213824Z
 DESCRIPTION: \n
-DTEND;TZID="Eastern Standard Time":20240604T170000
-DTSTAMP:20240131T151915Z
-DTSTART;TZID="Eastern Standard Time":20240603T080000
-LAST-MODIFIED:20240130T215355Z
+DTEND;VALUE=DATE:20240608
+DTSTAMP:20240206T214322Z
+DTSTART;VALUE=DATE:20240603
+LAST-MODIFIED:20240206T213824Z
 LOCATION:DC
 PRIORITY:5
-RRULE:FREQ=DAILY;COUNT=5
 SEQUENCE:0
 SUMMARY;LANGUAGE=en-us:KHW
-TRANSP:OPAQUE
-UID:040000008200E00074C5B7101A82E00800000000E0CD28E99C53DA01000000000000000
-	0100000006AE44EDECA317347BF7CF6C9A18AB0E2
+TRANSP:TRANSPARENT
+UID:040000008200E00074C5B7101A82E00800000000A0946BE71A59DA01000000000000000
+	01000000067A25A4947A8D44E9AC8DA31B3195F1B
 X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml" 
 	xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-mic
 	rosoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/
@@ -1094,7 +1076,7 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	ontent-Type" CONTENT="text/html\; charset=us-ascii"><meta name=ProgId cont
 	ent=Word.Document><meta name=Generator content="Microsoft Word 15"><meta n
 	ame=Originator content="Microsoft Word 15"><link rel=File-List href="cid:f
-	ilelist.xml@01DA539C.FC927070"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
+	ilelist.xml@01DA591A.F074A910"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
 	Settings>\n<o:AllowPNG/>\n</o:OfficeDocumentSettings>\n</xml><![endif]--><
 	!--[if gte mso 9]><xml>\n<w:WordDocument>\n<w:Zoom>110</w:Zoom>\n<w:TrackM
 	oves/>\n<w:TrackFormatting/>\n<w:EnvelopeVis/>\n<w:PunctuationKerning/>\n<
@@ -1585,33 +1567,32 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	" data="1" />\n</o:shapelayout></xml><![endif]--></head><body lang=EN-US l
 	ink="#0563C1" vlink="#954F72" style='tab-interval:.5in'><div class=WordSec
 	tion1><p class=MsoNormal><o:p>&nbsp\;</o:p></p></div></body></html>
-X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1
 X-MICROSOFT-DISALLOW-COUNTER:FALSE
 X-MS-OLK-AUTOFILLLOCATION:FALSE
 X-MS-OLK-CONFTYPE:0
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT720M
 ACTION:DISPLAY
 DESCRIPTION:Reminder
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 CLASS:PUBLIC
-CREATED:20240130T215510Z
+CREATED:20240206T213850Z
 DESCRIPTION: \n
-DTEND;TZID="Eastern Standard Time":20240611T170000
-DTSTAMP:20240131T151915Z
-DTSTART;TZID="Eastern Standard Time":20240609T080000
-LAST-MODIFIED:20240130T215510Z
+DTEND;VALUE=DATE:20240613
+DTSTAMP:20240206T214322Z
+DTSTART;VALUE=DATE:20240609
+LAST-MODIFIED:20240206T213850Z
 LOCATION:Vegas
 PRIORITY:5
-RRULE:FREQ=DAILY;COUNT=4
 SEQUENCE:0
 SUMMARY;LANGUAGE=en-us:KHW
-TRANSP:OPAQUE
-UID:040000008200E00074C5B7101A82E0080000000080E912169D53DA01000000000000000
-	010000000DA9356A0A1823740821515155CE80391
+TRANSP:TRANSPARENT
+UID:040000008200E00074C5B7101A82E0080000000030DC10F71A59DA01000000000000000
+	01000000031C68D1330D0534BA09FC9C53D48D457
 X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml" 
 	xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-mic
 	rosoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/
@@ -1619,7 +1600,7 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	ontent-Type" CONTENT="text/html\; charset=us-ascii"><meta name=ProgId cont
 	ent=Word.Document><meta name=Generator content="Microsoft Word 15"><meta n
 	ame=Originator content="Microsoft Word 15"><link rel=File-List href="cid:f
-	ilelist.xml@01DA539D.383B9250"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
+	ilelist.xml@01DA591B.0683C920"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
 	Settings>\n<o:AllowPNG/>\n</o:OfficeDocumentSettings>\n</xml><![endif]--><
 	!--[if gte mso 9]><xml>\n<w:WordDocument>\n<w:Zoom>110</w:Zoom>\n<w:TrackM
 	oves/>\n<w:TrackFormatting/>\n<w:EnvelopeVis/>\n<w:PunctuationKerning/>\n<
@@ -2110,33 +2091,32 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	" data="1" />\n</o:shapelayout></xml><![endif]--></head><body lang=EN-US l
 	ink="#0563C1" vlink="#954F72" style='tab-interval:.5in'><div class=WordSec
 	tion1><p class=MsoNormal><o:p>&nbsp\;</o:p></p></div></body></html>
-X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1
 X-MICROSOFT-DISALLOW-COUNTER:FALSE
 X-MS-OLK-AUTOFILLLOCATION:FALSE
 X-MS-OLK-CONFTYPE:0
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT720M
 ACTION:DISPLAY
 DESCRIPTION:Reminder
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
 CLASS:PUBLIC
-CREATED:20240130T215741Z
+CREATED:20240206T213935Z
 DESCRIPTION: \n
-DTEND;TZID="Eastern Standard Time":20240625T170000
-DTSTAMP:20240131T151915Z
-DTSTART;TZID="Eastern Standard Time":20240625T080000
-LAST-MODIFIED:20240130T215741Z
+DTEND;VALUE=DATE:20240629
+DTSTAMP:20240206T214322Z
+DTSTART;VALUE=DATE:20240625
+LAST-MODIFIED:20240206T213935Z
 LOCATION:Columbus
 PRIORITY:5
-RRULE:FREQ=DAILY;COUNT=4
 SEQUENCE:0
 SUMMARY;LANGUAGE=en-us:KHW
-TRANSP:OPAQUE
-UID:040000008200E00074C5B7101A82E0080000000020C807709D53DA01000000000000000
-	010000000DCF989633FB13D40B1A393EC83911352
+TRANSP:TRANSPARENT
+UID:040000008200E00074C5B7101A82E00800000000F07BE1111B59DA01000000000000000
+	01000000082956F025E81D0439FB21BF8ADD56418
 X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml" 
 	xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-mic
 	rosoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/
@@ -2144,7 +2124,7 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	ontent-Type" CONTENT="text/html\; charset=us-ascii"><meta name=ProgId cont
 	ent=Word.Document><meta name=Generator content="Microsoft Word 15"><meta n
 	ame=Originator content="Microsoft Word 15"><link rel=File-List href="cid:f
-	ilelist.xml@01DA539D.9419F170"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
+	ilelist.xml@01DA591B.1C77C010"><!--[if gte mso 9]><xml>\n<o:OfficeDocument
 	Settings>\n<o:AllowPNG/>\n</o:OfficeDocumentSettings>\n</xml><![endif]--><
 	!--[if gte mso 9]><xml>\n<w:WordDocument>\n<w:Zoom>110</w:Zoom>\n<w:TrackM
 	oves/>\n<w:TrackFormatting/>\n<w:EnvelopeVis/>\n<w:PunctuationKerning/>\n<
@@ -2635,13 +2615,13 @@ X-ALT-DESC;FMTTYPE=text/html:<html xmlns:v="urn:schemas-microsoft-com:vml"
 	" data="1" />\n</o:shapelayout></xml><![endif]--></head><body lang=EN-US l
 	ink="#0563C1" vlink="#954F72" style='tab-interval:.5in'><div class=WordSec
 	tion1><p class=MsoNormal><o:p>&nbsp\;</o:p></p></div></body></html>
-X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-BUSYSTATUS:FREE
 X-MICROSOFT-CDO-IMPORTANCE:1
 X-MICROSOFT-DISALLOW-COUNTER:FALSE
 X-MS-OLK-AUTOFILLLOCATION:FALSE
 X-MS-OLK-CONFTYPE:0
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT720M
 ACTION:DISPLAY
 DESCRIPTION:Reminder
 END:VALARM
