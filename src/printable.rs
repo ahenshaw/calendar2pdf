@@ -1,4 +1,10 @@
 use crate::events::Event;
+use azul_text_layout::text_layout::ResolvedTextLayoutOptions;
+use azul_text_layout::{
+    text_layout::{position_words, split_text_into_words, words_to_scaled_words},
+    text_shaping::get_font_metrics_freetype,
+};
+
 use chrono::naive::NaiveDate;
 use printpdf::path::PaintMode::{self, FillStroke, Stroke};
 use printpdf::*;
@@ -18,6 +24,53 @@ const BASE: f32 = 2.;
 const ROW: f32 = (HEIGHT - TITLE_HEIGHT - MARGIN * 2.0) / (12.0 * 32.0 / COLS as f32);
 const CW: f32 = (WIDTH - MARGIN * 2.0 - GUTTER * (COLS as f32 - 1.0)) / COLS as f32;
 const SUMMARY: f32 = (CW - 2. * DAY_WIDTH) / 2. - SUMMARY_GUTTER;
+
+pub fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef) {
+    let (mut doc, page1, layer1) = PdfDocument::new(
+        "Calendar".to_string(),
+        Pt(WIDTH).into(),
+        Pt(HEIGHT).into(),
+        "Layer 1",
+    );
+    doc = doc.with_conformance(PdfConformance::Custom(CustomPdfConformance {
+        requires_icc_profile: false,
+        requires_xmp_metadata: false,
+        ..Default::default()
+    }));
+    let canvas = doc.get_page(page1).get_layer(layer1);
+    let font = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
+
+    let font_index = 0u32;
+    let font_bytes = include_bytes!("Helvetica.ttf");
+    let font_metrics = get_font_metrics_freetype(font_bytes, font_index as i32);
+    let text = "This is a test";
+    let words = split_text_into_words(text);
+    let font_size_pt = 12;
+    let line_height = 14;
+
+    let text_layout_options = ResolvedTextLayoutOptions {
+        font_size_px: 16.0, // 12pt => (12*96)/72 = 16px
+        line_height: Some(font_size_pt as f32 / line_height as f32),
+        letter_spacing: None,
+        word_spacing: None,
+        tab_width: None,
+        max_horizontal_width: Some(360.0),
+        leading: None,
+        holes: vec![],
+    };
+
+    let scaled_words = words_to_scaled_words(
+        &words,
+        font_bytes,
+        font_index,
+        font_metrics,
+        text_layout_options.font_size_px,
+    );
+    let word_positions = position_words(&words, &scaled_words, &text_layout_options);
+    dbg!(word_positions);
+
+    (doc, canvas, font)
+}
 
 pub fn write_events(
     canvas: &PdfLayerReference,
@@ -57,24 +110,6 @@ pub fn write_events(
             );
         }
     }
-}
-
-pub fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef) {
-    let (mut doc, page1, layer1) = PdfDocument::new(
-        "Calendar".to_string(),
-        Pt(WIDTH).into(),
-        Pt(HEIGHT).into(),
-        "Layer 1",
-    );
-    doc = doc.with_conformance(PdfConformance::Custom(CustomPdfConformance {
-        requires_icc_profile: false,
-        requires_xmp_metadata: false,
-        ..Default::default()
-    }));
-    let canvas = doc.get_page(page1).get_layer(layer1);
-    let font = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
-
-    (doc, canvas, font)
 }
 
 pub fn base_calendar(
