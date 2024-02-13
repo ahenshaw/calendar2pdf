@@ -1,11 +1,11 @@
 use crate::events::Event;
-use azul_text_layout::text_layout::ResolvedTextLayoutOptions;
-use azul_text_layout::{
-    text_layout::{position_words, split_text_into_words, words_to_scaled_words},
-    text_shaping::get_font_metrics_freetype,
-};
+// use azul_text_layout::text_layout::ResolvedTextLayoutOptions;
+// use azul_text_layout::{
+//     text_layout::{position_words, split_text_into_words, words_to_scaled_words},
+//     text_shaping::get_font_metrics_freetype,
+// };
 
-use chrono::naive::NaiveDate;
+use chrono::naive::{Days, NaiveDate};
 use printpdf::path::PaintMode::{self, FillStroke, Stroke};
 use printpdf::*;
 use std::collections::HashMap;
@@ -40,34 +40,56 @@ pub fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef
     let canvas = doc.get_page(page1).get_layer(layer1);
     let font = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
 
-    let font_index = 0u32;
     let font_bytes = include_bytes!("Helvetica.ttf");
-    let font_metrics = get_font_metrics_freetype(font_bytes, font_index as i32);
-    let text = "This is a test";
-    let words = split_text_into_words(text);
-    let font_size_pt = 12;
-    let line_height = 14;
 
-    let text_layout_options = ResolvedTextLayoutOptions {
-        font_size_px: 16.0, // 12pt => (12*96)/72 = 16px
-        line_height: Some(font_size_pt as f32 / line_height as f32),
-        letter_spacing: None,
-        word_spacing: None,
-        tab_width: None,
-        max_horizontal_width: Some(360.0),
-        leading: None,
-        holes: vec![],
-    };
-
-    let scaled_words = words_to_scaled_words(
-        &words,
-        font_bytes,
-        font_index,
-        font_metrics,
-        text_layout_options.font_size_px,
+    // load the font reference for glyph_brush_layout
+    let gbl_font = glyph_brush_layout::ab_glyph::FontRef::try_from_slice(font_bytes).unwrap();
+    // put it into a slice of glyph_brush_layout font references
+    let gbl_fonts = &[gbl_font];
+    use glyph_brush_layout::ab_glyph::Font;
+    use glyph_brush_layout::GlyphPositioner;
+    let glyphs = glyph_brush_layout::Layout::default().calculate_glyphs(
+        gbl_fonts,
+        &glyph_brush_layout::SectionGeometry {
+            // width 160mm = 210mm - 2 * 25mm margins; height unbounded
+            bounds: (CW, f32::INFINITY),
+            ..Default::default()
+        },
+        &[glyph_brush_layout::SectionText {
+            text: "this is a test",
+            scale: gbl_fonts[0].pt_to_px_scale(14.0).unwrap(),
+            font_id: glyph_brush_layout::FontId(0),
+        }],
     );
-    let word_positions = position_words(&words, &scaled_words, &text_layout_options);
-    dbg!(word_positions);
+
+    // let font_index = 0u32;
+    // let font_bytes = include_bytes!("Helvetica.ttf");
+    // let font_metrics = get_font_metrics_freetype(font_bytes, font_index as i32);
+    // let text = "This is a test";
+    // let words = split_text_into_words(text);
+    // let font_size_pt = 12;
+    // let line_height = 14;
+
+    // let text_layout_options = ResolvedTextLayoutOptions {
+    //     font_size_px: 16.0, // 12pt => (12*96)/72 = 16px
+    //     line_height: Some(font_size_pt as f32 / line_height as f32),
+    //     letter_spacing: None,
+    //     word_spacing: None,
+    //     tab_width: None,
+    //     max_horizontal_width: Some(360.0),
+    //     leading: None,
+    //     holes: vec![],
+    // };
+
+    // let scaled_words = words_to_scaled_words(
+    //     &words,
+    //     font_bytes,
+    //     font_index,
+    //     font_metrics,
+    //     text_layout_options.font_size_px,
+    // );
+    // let word_positions = position_words(&words, &scaled_words, &text_layout_options);
+    // dbg!(word_positions);
 
     (doc, canvas, font)
 }
@@ -79,35 +101,46 @@ pub fn write_events(
     font: &IndirectFontRef,
 ) {
     for event in events {
-        if let Some((x, y)) = pos_map.get(&event.start) {
-            let mut text = event.summary.clone();
-            if text.len() > 15 {
-                text = text[..14].to_string();
-                text.push('…');
-            }
-            // text box
-            if event.id == 0 {
-                canvas.set_fill_color(Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None)));
-            } else {
-                canvas.set_fill_color(Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None)));
-            }
-            rect(
-                &canvas,
-                x + 1. + (SUMMARY_GUTTER + SUMMARY) * event.id as f32,
-                y - (event.num_days - 1) as f32 * ROW + 1.,
-                SUMMARY,
-                event.num_days as f32 * ROW - 2.,
-                PaintMode::Fill,
-            );
-            canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
+        // text box
+        let fill = if event.id == 0 {
+            Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None))
+        } else {
+            Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None))
+        };
+        let mut text = event.summary.clone();
+        if text.len() > 15 {
+            text = text[..14].to_string();
+            text.push('…');
+        }
+        for day in 0..event.num_days {
+            if let Some((x, y)) =
+                pos_map.get(&event.start.checked_add_days(Days::new(day as u64)).unwrap())
+            {
+                let shade_height = if day == 0 { ROW - 1. } else { ROW };
+                let start_y = if day == event.num_days - 1 {
+                    y + 1.
+                } else {
+                    *y
+                };
+                canvas.set_fill_color(fill.clone());
+                rect(
+                    &canvas,
+                    x + 1. + (SUMMARY_GUTTER + SUMMARY) * event.id as f32,
+                    start_y,
+                    SUMMARY,
+                    shade_height,
+                    PaintMode::Fill,
+                );
+                canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
 
-            canvas.use_text(
-                &text,
-                FONT_HEIGHT,
-                Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
-                Pt(y + BASE).into(),
-                &font,
-            );
+                canvas.use_text(
+                    &text,
+                    FONT_HEIGHT,
+                    Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
+                    Pt(y + BASE).into(),
+                    &font,
+                );
+            }
         }
     }
 }

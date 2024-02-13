@@ -24,11 +24,13 @@ pub fn get_events(calendars: &Vec<PathBuf>) -> Result<Vec<Event>> {
                 let mut start: Option<String> = None;
                 let mut end: Option<String> = None;
                 let mut summary: Option<String> = None;
+                let mut location: Option<String> = None;
                 for prop in component.properties {
                     match prop.name.as_str() {
                         "DTSTART" => start = Some(prop.val.to_string()),
                         "DTEND" => end = Some(prop.val.to_string()),
                         "SUMMARY" => summary = Some(prop.val.to_string()),
+                        "LOCATION" => location = Some(prop.val.to_string()),
                         _ => (),
                     }
                 }
@@ -36,8 +38,13 @@ pub fn get_events(calendars: &Vec<PathBuf>) -> Result<Vec<Event>> {
                     (Some(start), Some(end), Some(summary)) => {
                         let (start, _) = NaiveDate::parse_and_remainder(&start, "%Y%m%d").unwrap();
                         let (end, _) = NaiveDate::parse_and_remainder(&end, "%Y%m%d").unwrap();
-                        let num_days = 1 + (end - start).num_days();
-                        let summary = summary.to_string();
+                        let num_days = (end - start).num_days();
+                        let mut summary = summary.to_string();
+                        if let Some(location) = location {
+                            if location.len() > 0 {
+                                summary.push_str(&format!(" at {location}"));
+                            }
+                        }
 
                         if !summary.starts_with("Canceled: ") {
                             events.push(Event {
@@ -45,7 +52,7 @@ pub fn get_events(calendars: &Vec<PathBuf>) -> Result<Vec<Event>> {
                                 start,
                                 end,
                                 num_days,
-                                summary: summary.to_string(),
+                                summary,
                             });
                         }
                     }
