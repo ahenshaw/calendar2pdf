@@ -4,6 +4,10 @@ use crate::events::Event;
 //     text_layout::{position_words, split_text_into_words, words_to_scaled_words},
 //     text_shaping::get_font_metrics_freetype,
 // };
+use itertools::Itertools;
+
+use glyph_brush_layout::ab_glyph::Font;
+use glyph_brush_layout::GlyphPositioner;
 
 use chrono::naive::{Days, NaiveDate};
 use printpdf::path::PaintMode::{self, FillStroke, Stroke};
@@ -40,58 +44,42 @@ pub fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef
     let canvas = doc.get_page(page1).get_layer(layer1);
     let font = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
 
+    (doc, canvas, font)
+}
+
+pub fn calc_line_breaks(text: &str, width: f32, height: f32) -> Vec<String> {
     let font_bytes = include_bytes!("Helvetica.ttf");
 
     // load the font reference for glyph_brush_layout
     let gbl_font = glyph_brush_layout::ab_glyph::FontRef::try_from_slice(font_bytes).unwrap();
     // put it into a slice of glyph_brush_layout font references
     let gbl_fonts = &[gbl_font];
-    use glyph_brush_layout::ab_glyph::Font;
-    use glyph_brush_layout::GlyphPositioner;
     let glyphs = glyph_brush_layout::Layout::default().calculate_glyphs(
         gbl_fonts,
         &glyph_brush_layout::SectionGeometry {
-            // width 160mm = 210mm - 2 * 25mm margins; height unbounded
-            bounds: (CW, f32::INFINITY),
+            bounds: (width, height),
             ..Default::default()
         },
         &[glyph_brush_layout::SectionText {
-            text: "this is a test",
-            scale: gbl_fonts[0].pt_to_px_scale(14.0).unwrap(),
+            text,
+            scale: gbl_fonts[0].pt_to_px_scale(5.0).unwrap(),
             font_id: glyph_brush_layout::FontId(0),
         }],
     );
 
-    // let font_index = 0u32;
-    // let font_bytes = include_bytes!("Helvetica.ttf");
-    // let font_metrics = get_font_metrics_freetype(font_bytes, font_index as i32);
-    // let text = "This is a test";
-    // let words = split_text_into_words(text);
-    // let font_size_pt = 12;
-    // let line_height = 14;
+    let mut line_indices = glyphs
+        .iter()
+        .enumerate() // enumerate will give us the start index into the sample text of the start of the line
+        .group_by(|(_, glyph)| glyph.glyph.position.y) // group by "y" which is effectively equivalent to the index of the line
+        .into_iter()
+        .map(|(_, mut group)| group.next().unwrap().0)
+        .collect::<Vec<_>>();
+    line_indices.push(text.len());
 
-    // let text_layout_options = ResolvedTextLayoutOptions {
-    //     font_size_px: 16.0, // 12pt => (12*96)/72 = 16px
-    //     line_height: Some(font_size_pt as f32 / line_height as f32),
-    //     letter_spacing: None,
-    //     word_spacing: None,
-    //     tab_width: None,
-    //     max_horizontal_width: Some(360.0),
-    //     leading: None,
-    //     holes: vec![],
-    // };
+    line_indices.iter().tuple_windows().map(|(start, end)| text[*start..*end].trim_end().to_string()).collect()
 
-    // let scaled_words = words_to_scaled_words(
-    //     &words,
-    //     font_bytes,
-    //     font_index,
-    //     font_metrics,
-    //     text_layout_options.font_size_px,
-    // );
-    // let word_positions = position_words(&words, &scaled_words, &text_layout_options);
-    // dbg!(word_positions);
 
-    (doc, canvas, font)
+
 }
 
 pub fn write_events(
@@ -107,11 +95,9 @@ pub fn write_events(
         } else {
             Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None))
         };
-        let mut text = event.summary.clone();
-        if text.len() > 15 {
-            text = text[..14].to_string();
-            text.push('…');
-        }
+        let text = event.summary.clone();
+        let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33, event.num_days as f32 * ROW);
+
         for day in 0..event.num_days {
             if let Some((x, y)) =
                 pos_map.get(&event.start.checked_add_days(Days::new(day as u64)).unwrap())
@@ -132,14 +118,16 @@ pub fn write_events(
                     PaintMode::Fill,
                 );
                 canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
+                if (day as usize) <= lines.len() {
+                    canvas.use_text(
+                        &lines[day as usize],
+                        FONT_HEIGHT,
+                        Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
+                        Pt(y + BASE).into(),
+                        &font,
+                    );
 
-                canvas.use_text(
-                    &text,
-                    FONT_HEIGHT,
-                    Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
-                    Pt(y + BASE).into(),
-                    &font,
-                );
+                }
             }
         }
     }
