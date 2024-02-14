@@ -76,10 +76,11 @@ pub fn calc_line_breaks(text: &str, width: f32, height: f32) -> Vec<String> {
         .collect::<Vec<_>>();
     line_indices.push(text.len());
 
-    line_indices.iter().tuple_windows().map(|(start, end)| text[*start..*end].trim_end().to_string()).collect()
-
-
-
+    line_indices
+        .iter()
+        .tuple_windows()
+        .map(|(start, end)| text[*start..*end].trim_end().to_string())
+        .collect()
 }
 
 pub fn write_events(
@@ -118,7 +119,7 @@ pub fn write_events(
                     PaintMode::Fill,
                 );
                 canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
-                if (day as usize) <= lines.len() {
+                if (day as usize) < lines.len() {
                     canvas.use_text(
                         &lines[day as usize],
                         FONT_HEIGHT,
@@ -126,7 +127,6 @@ pub fn write_events(
                         Pt(y + BASE).into(),
                         &font,
                     );
-
                 }
             }
         }
