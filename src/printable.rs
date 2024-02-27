@@ -9,7 +9,8 @@ use itertools::Itertools;
 use glyph_brush_layout::ab_glyph::Font;
 use glyph_brush_layout::GlyphPositioner;
 
-use chrono::naive::{Days, NaiveDate};
+use chrono::naive::{self, Days, NaiveDate};
+use chrono::Datelike;
 use printpdf::path::PaintMode::{self, FillStroke, Stroke};
 use printpdf::*;
 use std::collections::HashMap;
@@ -136,15 +137,43 @@ pub fn write_events(
 pub fn base_calendar(
     canvas: &PdfLayerReference,
     font: &IndirectFontRef,
+    start_date: naive::NaiveDate,
 ) -> HashMap<NaiveDate, (f32, f32)> {
-    let year = 2024;
     let mut left = MARGIN;
-    let mut month = 1u32;
     let mut shade = false;
     let mut label_position = HashMap::new();
+    let mut year = start_date.year();
+    let mut month = start_date.month();
 
     canvas.set_outline_thickness(0.0);
     canvas.set_outline_color(Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
+
+    let title = format!(
+        "{} — {}",
+        start_date.format("%B %Y").to_string(),
+        start_date
+            .checked_add_months(chrono::Months::new(11))
+            .unwrap()
+            .format("%B %Y")
+            .to_string()
+    );
+
+    canvas.use_text(
+        title,
+        20.,
+        Pt(MARGIN).into(),
+        Pt(HEIGHT - MARGIN / 2. - TITLE_HEIGHT).into(),
+        &font,
+    );
+    canvas.use_text(
+        chrono::Local::now()
+            .format("Generated on %Y-%m-%d")
+            .to_string(),
+        8.,
+        Pt(MARGIN).into(),
+        Pt(MARGIN / 2.).into(),
+        &font,
+    );
 
     for _ in 0..COLS {
         let mut bottom = HEIGHT - MARGIN - ROW - TITLE_HEIGHT;
@@ -233,6 +262,10 @@ pub fn base_calendar(
             );
             canvas.restore_graphics_state();
             month += 1;
+            if month > 12 {
+                month = 1;
+                year += 1;
+            }
         }
         left += CW + GUTTER;
     }

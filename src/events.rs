@@ -42,7 +42,7 @@ pub fn get_events(calendars: &Vec<PathBuf>) -> Result<Vec<Event>> {
                         let mut summary = summary.to_string();
                         if let Some(location) = location {
                             if location.len() > 0 {
-                                summary.push_str(&format!(" at {location}"));
+                                summary.push_str(&format!("; {location}"));
                             }
                         }
 
