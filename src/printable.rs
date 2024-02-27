@@ -120,15 +120,19 @@ pub fn write_events(
                     PaintMode::Fill,
                 );
                 canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
-                if (day as usize) < lines.len() {
-                    canvas.use_text(
-                        &lines[day as usize],
-                        FONT_HEIGHT,
-                        Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
-                        Pt(y + BASE).into(),
-                        &font,
-                    );
-                }
+                let text = if (day as usize) < lines.len() {
+                    lines[day as usize].clone()
+                } else {
+                    format!("{}", day + 1)
+                };
+
+                canvas.use_text(
+                    text,
+                    FONT_HEIGHT,
+                    Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
+                    Pt(y + BASE).into(),
+                    &font,
+                );
             }
         }
     }
@@ -167,7 +171,7 @@ pub fn base_calendar(
     );
     canvas.use_text(
         chrono::Local::now()
-            .format("Generated on %Y-%m-%d")
+            .format("Generated on %Y-%m-%d  %H:%M:%S")
             .to_string(),
         8.,
         Pt(MARGIN).into(),
