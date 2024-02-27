@@ -171,7 +171,7 @@ pub fn base_calendar(
     );
     canvas.use_text(
         chrono::Local::now()
-            .format("Generated on %Y-%m-%d  %H:%M:%S")
+            .format("Generated: %Y-%m-%d  %H:%M:%S")
             .to_string(),
         8.,
         Pt(MARGIN).into(),
