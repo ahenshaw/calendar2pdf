@@ -145,9 +145,11 @@ pub fn base_calendar(
 ) -> HashMap<NaiveDate, (f32, f32)> {
     let mut left = MARGIN;
     let mut shade = false;
+    let mut pay_period_tracker = 2;
     let mut label_position = HashMap::new();
     let mut year = start_date.year();
     let mut month = start_date.month();
+    let mut pay_period_shade = FillStroke;
 
     canvas.set_outline_thickness(0.0);
     canvas.set_outline_color(Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
@@ -205,6 +207,14 @@ pub fn base_calendar(
                     if day_of_week == "Mon" {
                         shade = !shade
                     }
+                    if day_of_week == "Sun" {
+                        pay_period_tracker = (pay_period_tracker + 1) % 4;
+                        pay_period_shade = match pay_period_tracker {
+                            1 | 2 => FillStroke,
+                            _ => Stroke,
+                        };
+
+                    }
                     label_position.insert(today, (left + 2. * DAY_WIDTH, bottom));
                     // text box
                     rect(
@@ -216,15 +226,17 @@ pub fn base_calendar(
                         Stroke,
                     );
                     // day number
-                    canvas.set_fill_color(Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
+                    canvas.set_fill_color(Color::Rgb(Rgb::new(1.0, 0.7, 1.0, None)));
                     rect(
                         &canvas,
                         left,
                         bottom,
                         DAY_WIDTH,
                         ROW,
-                        if shade { FillStroke } else { Stroke },
+                        // if shade { FillStroke } else { Stroke },
+                        pay_period_shade,
                     );
+                    canvas.set_fill_color(Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
                     rect(
                         &canvas,
                         left + DAY_WIDTH,
