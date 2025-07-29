@@ -33,11 +33,11 @@ fn main() {
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    /// file-paths for calendar files (*.ics)
-    #[arg(required = true)]
+    /// file paths for calendar files (*.ics) (only 1 or 2 files allowed)
+    #[arg(required = true, num_args=1..=2)]
     calendars: Vec<PathBuf>,
 
-    /// output file-path
+    /// output file path
     #[arg(short, long, value_name = "output", default_value("test.pdf"))]
     output: Option<PathBuf>,
 
