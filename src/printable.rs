@@ -145,11 +145,12 @@ pub fn base_calendar(
 ) -> HashMap<NaiveDate, (f32, f32)> {
     let mut left = MARGIN;
     let mut shade = false;
-    let mut pay_period_tracker = 2;
     let mut label_position = HashMap::new();
     let mut year = start_date.year();
     let mut month = start_date.month();
     let mut pay_period_shade = FillStroke;
+
+    let mut pay_period_tracker = ((start_date.iso_week().week()) % 2) + 1;
 
     canvas.set_outline_thickness(0.0);
     canvas.set_outline_color(Color::Rgb(Rgb::new(0.9, 0.9, 0.9, None)));
