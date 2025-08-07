@@ -102,10 +102,9 @@ pub fn write_events(
             let is_conflict = !conflict_check.insert(key);
 
             let fill = match (event.id, is_conflict) {
+                (_, true)  => Color::Rgb(Rgb::new(0.9, 0.5, 0.5, None)),
                 (0, false) => Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None)),
-                (0, true)  => Color::Rgb(Rgb::new(0.5, 0.7, 0.5, None)),
                 (1, false) => Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None)),
-                (1, true)  => Color::Rgb(Rgb::new(0.7, 0.5, 0.5, None)),
                 _ => unreachable!(),
             };
 
