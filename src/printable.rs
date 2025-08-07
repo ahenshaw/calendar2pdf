@@ -102,7 +102,7 @@ pub fn write_events(
             let is_conflict = !conflict_check.insert(key);
 
             let fill = match (event.id, is_conflict) {
-                (_, true)  => Color::Rgb(Rgb::new(0.9, 0.5, 0.5, None)),
+                (_, true)  => Color::Rgb(Rgb::new(1.0, 0.5, 0.5, None)),
                 (0, false) => Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None)),
                 (1, false) => Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None)),
                 _ => unreachable!(),
@@ -115,7 +115,7 @@ pub fn write_events(
                 } else {
                     *y
                 };
-                canvas.set_fill_color(fill.clone());
+                canvas.set_fill_color(fill);
                 rect(
                     &canvas,
                     x + 1. + (SUMMARY_GUTTER + SUMMARY) * event.id as f32,
