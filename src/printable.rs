@@ -90,20 +90,26 @@ pub fn write_events(
     pos_map: &HashMap<NaiveDate, (f32, f32)>,
     font: &IndirectFontRef,
 ) {
+    let mut conflict_check = std::collections::HashSet::<(usize, NaiveDate)>::new();
     for event in events {
         // text box
-        let fill = if event.id == 0 {
-            Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None))
-        } else {
-            Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None))
-        };
         let text = event.summary.clone();
         let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33, event.num_days as f32 * ROW);
 
         for day in 0..event.num_days {
-            if let Some((x, y)) =
-                pos_map.get(&event.start.checked_add_days(Days::new(day as u64)).unwrap())
-            {
+            let this_date = event.start.checked_add_days(Days::new(day as u64)).unwrap();
+            let key = (event.id, this_date);
+            let is_conflict = !conflict_check.insert(key);
+
+            let fill = match (event.id, is_conflict) {
+                (0, false) => Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None)),
+                (0, true)  => Color::Rgb(Rgb::new(0.5, 0.7, 0.5, None)),
+                (1, false) => Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None)),
+                (1, true)  => Color::Rgb(Rgb::new(0.7, 0.5, 0.5, None)),
+                _ => unreachable!(),
+            };
+
+            if let Some((x, y)) = pos_map.get(&this_date) {
                 let shade_height = if day == 0 { ROW - 1. } else { ROW };
                 let start_y = if day == event.num_days - 1 {
                     y + 1.
