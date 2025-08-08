@@ -23,7 +23,7 @@ const SUMMARY_GUTTER: f32 = 5.;
 const MARGIN: f32 = 36.;
 const DAY_WIDTH: f32 = 10.;
 const TITLE_HEIGHT: f32 = 16.;
-const FONT_HEIGHT: f32 = 5.;
+const BASE_FONT_HEIGHT: f32 = 5.;
 const BASE: f32 = 2.;
 
 const ROW: f32 = (HEIGHT - TITLE_HEIGHT - MARGIN * 2.0) / (12.0 * 32.0 / COLS as f32);
@@ -48,7 +48,7 @@ pub fn create_pdf() -> (PdfDocumentReference, PdfLayerReference, IndirectFontRef
     (doc, canvas, font)
 }
 
-pub fn calc_line_breaks(text: &str, width: f32, height: f32) -> Vec<String> {
+pub fn calc_line_breaks(text: &str, width: f32, height: f32, points: f32) -> Vec<String> {
     let font_bytes = include_bytes!("Helvetica.ttf");
 
     // load the font reference for glyph_brush_layout
@@ -63,7 +63,7 @@ pub fn calc_line_breaks(text: &str, width: f32, height: f32) -> Vec<String> {
         },
         &[glyph_brush_layout::SectionText {
             text,
-            scale: gbl_fonts[0].pt_to_px_scale(5.0).unwrap(),
+            scale: gbl_fonts[0].pt_to_px_scale(points).unwrap(),
             font_id: glyph_brush_layout::FontId(0),
         }],
     );
@@ -90,16 +90,16 @@ pub fn write_events(
     pos_map: &HashMap<NaiveDate, (f32, f32)>,
     font: &IndirectFontRef,
 ) {
-    let mut conflict_check = std::collections::HashSet::<(usize, NaiveDate)>::new();
+    let mut conflict_check = std::collections::HashMap::<(usize, NaiveDate), String>::new();
     for event in events {
         // text box
         let text = event.summary.clone();
-        let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33, event.num_days as f32 * ROW);
+        let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33, event.num_days as f32 * ROW, BASE_FONT_HEIGHT);
 
         for day in 0..event.num_days {
             let this_date = event.start.checked_add_days(Days::new(day as u64)).unwrap();
             let key = (event.id, this_date);
-            let is_conflict = !conflict_check.insert(key);
+            let is_conflict = conflict_check.contains_key(&key);
 
             let fill = match (event.id, is_conflict) {
                 (_, true)  => Color::Rgb(Rgb::new(1.0, 0.5, 0.5, None)),
@@ -125,15 +125,31 @@ pub fn write_events(
                     PaintMode::Fill,
                 );
                 canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
-                let text = if (day as usize) < lines.len() {
+                let mut text = if (day as usize) < lines.len() {
                     lines[day as usize].clone()
                 } else {
                     format!("{}", day + 1)
                 };
 
+                let mut font_height = BASE_FONT_HEIGHT;
+                conflict_check.entry(key).and_modify(|prev_text| *prev_text = format!("{} / {}", prev_text, &text)).or_insert(text.clone());
+                if is_conflict {
+                    text = conflict_check.get(&key).unwrap().to_string();
+                    println!("conflict");
+                    // merged text might be too big, reduce font until fits
+                    while font_height >= 0.0 {
+                        let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33,  ROW, font_height);
+                        if lines.len() == 1 {
+                            // once we are back to one line of text, then we can stop
+                            break;
+                        }
+                        font_height -= 1.0;
+                    }
+                }
+
                 canvas.use_text(
                     text,
-                    FONT_HEIGHT,
+                    font_height,
                     Pt(x + 2. + (SUMMARY + SUMMARY_GUTTER) * event.id as f32).into(),
                     Pt(y + BASE).into(),
                     &font,
@@ -199,7 +215,7 @@ pub fn base_calendar(
             canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
             canvas.use_text(
                 &format!("{}", month_name),
-                FONT_HEIGHT,
+                BASE_FONT_HEIGHT,
                 Pt(left + 5. * DAY_WIDTH).into(),
                 Pt(bottom + 2.0).into(),
                 &font,
@@ -255,7 +271,7 @@ pub fn base_calendar(
 
                     canvas.use_text(
                         &format!("{}", day),
-                        FONT_HEIGHT,
+                        BASE_FONT_HEIGHT,
                         Pt(left + 2.).into(),
                         Pt(bottom + BASE).into(),
                         &font,
@@ -263,7 +279,7 @@ pub fn base_calendar(
 
                     canvas.use_text(
                         &format!("{}", day_of_week.chars().next().unwrap()),
-                        FONT_HEIGHT,
+                        BASE_FONT_HEIGHT,
                         Pt(left + DAY_WIDTH + 2.).into(),
                         Pt(bottom + BASE).into(),
                         &font,
