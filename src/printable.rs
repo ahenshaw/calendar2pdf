@@ -102,9 +102,10 @@ pub fn write_events(
             let is_conflict = conflict_check.contains_key(&key);
 
             let fill = match (event.id, is_conflict) {
-                (_, true)  => Color::Rgb(Rgb::new(1.0, 0.5, 0.5, None)),
                 (0, false) => Color::Rgb(Rgb::new(0.7, 0.9, 0.7, None)),
                 (1, false) => Color::Rgb(Rgb::new(0.9, 0.7, 0.7, None)),
+                (0, true) => Color::Rgb(Rgb::new(0.5, 0.8, 0.5, None)),
+                (1, true) => Color::Rgb(Rgb::new(0.8, 0.5, 0.5, None)),
                 _ => unreachable!(),
             };
 
@@ -130,12 +131,15 @@ pub fn write_events(
                 } else {
                     format!("{}", day + 1)
                 };
+                if day == event.num_days -1 {
+                    text = format!("{text}¶")
+                }
 
                 let mut font_height = BASE_FONT_HEIGHT;
-                conflict_check.entry(key).and_modify(|prev_text| *prev_text = format!("{} / {}", prev_text, &text)).or_insert(text.clone());
+                conflict_check.entry(key).and_modify(|prev_text| *prev_text = format!("{} // {}", prev_text, &text)).or_insert(text.clone());
                 if is_conflict {
                     text = conflict_check.get(&key).unwrap().to_string();
-                    println!("conflict");
+                    println!("conflict on {this_date}");
                     // merged text might be too big, reduce font until fits
                     while font_height >= 0.0 {
                         let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33,  ROW, font_height);
@@ -143,7 +147,7 @@ pub fn write_events(
                             // once we are back to one line of text, then we can stop
                             break;
                         }
-                        font_height -= 1.0;
+                        font_height -= 0.1;
                     }
                 }
 
