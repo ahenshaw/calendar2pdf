@@ -95,7 +95,7 @@ pub fn write_events(
         // text box
         let text = event.summary.clone();
         let lines = calc_line_breaks(&text, (SUMMARY - 1.) * 1.33, event.num_days as f32 * ROW, BASE_FONT_HEIGHT);
-
+        let mut summary_displayed = false;
         for day in 0..event.num_days {
             let this_date = event.start.checked_add_days(Days::new(day as u64)).unwrap();
             let key = (event.id, this_date);
@@ -127,11 +127,20 @@ pub fn write_events(
                 );
                 canvas.set_fill_color(Color::Rgb(Rgb::new(0., 0., 0., None)));
                 let mut text = if (day as usize) < lines.len() {
+                    if day == 0 {
+                        summary_displayed = true;
+                    }
                     lines[day as usize].clone()
+
                 } else {
-                    format!("{}", day + 1)
+                    if !summary_displayed {
+                        summary_displayed = true;
+                         format!("{} {}", day + 1, lines[0])
+                    } else {
+                        format!("{}", day + 1)
+                    }
                 };
-                if day == event.num_days -1 {
+                if day == event.num_days - 1 {
                     text = format!("{text}¶")
                 }
 
